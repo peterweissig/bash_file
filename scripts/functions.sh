@@ -126,20 +126,20 @@ function file_name_clean_recursive() {
         if [ $? -ne 0 ]; then return; fi
 
     # iterate over all subdirs
-    file_name_clean_recursive__filelist=(${filelist[*]});
+    file_name_clean_recursive__filelist=("${filelist[@]}");
     for i in ${!filelist[@]}; do
         if [ "${filelist[$i]}" == "" ]; then continue; fi
 
         # call this functions recursive
         if [ $# -gt 0 ]; then
-            (cd ${filelist[$i]} && file_name_clean_recursive "$1")
+            (cd "${filelist[$i]}" && file_name_clean_recursive "$1")
         else
-            (cd ${filelist[$i]} && file_name_clean_recursive)
+            (cd "${filelist[$i]}" && file_name_clean_recursive)
         fi
             # check result
             if [ $? -ne 0 ]; then return -1; fi
 
-        filelist=(${file_name_clean_recursive__filelist[*]})
+        filelist=("${file_name_clean_recursive__filelist[@]}")
     done
 }
 

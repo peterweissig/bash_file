@@ -84,6 +84,65 @@ function file_name_clean() {
     done
 }
 
+function file_name_clean_recursive() {
+
+    # print help
+    if [ "$1" == "-h" ]; then
+        echo "$FUNCNAME [<filter>]"
+
+        return
+    fi
+    if [ "$1" == "--help" ]; then
+        echo "$FUNCNAME needs 0-1 parameters"
+        echo "    [#1:]search-expression (e.g. \"*.jpg\")"
+        echo "         Leave option empty to rename all files and dirs."
+        echo "         For wildcard-expressions please use double-quotes."
+        echo "The files will be renamed to remove ä, ü, ö, ß and spaces."
+        echo "  (e.g. from \"file ä ß Ö.ext\" to file_ae_ss_Oe.ext)"
+
+        return
+    fi
+
+    # check parameter
+    if [ $# -gt 1 ]; then
+        echo "$FUNCNAME: Parameter Error."
+        $FUNCNAME --help
+        return -1
+    fi
+
+    # clean local path
+    echo "[$(pwd)/]"
+    if [ $# -gt 0 ]; then
+        file_name_clean "$1"
+    else
+        file_name_clean
+    fi
+        # check result
+        if [ $? -ne 0 ]; then return -1; fi
+
+    # find all subfolder
+    readarray -t filelist <<< "$(ls -d */ 2>> /dev/null)"
+        # check result
+        if [ $? -ne 0 ]; then return; fi
+
+    # iterate over all subdirs
+    file_name_clean_recursive__filelist=(${filelist[*]});
+    for i in ${!filelist[@]}; do
+        if [ "${filelist[$i]}" == "" ]; then continue; fi
+
+        # call this functions recursive
+        if [ $# -gt 0 ]; then
+            (cd ${filelist[$i]} && file_name_clean_recursive "$1")
+        else
+            (cd ${filelist[$i]} && file_name_clean_recursive)
+        fi
+            # check result
+            if [ $? -ne 0 ]; then return -1; fi
+
+        filelist=(${file_name_clean_recursive__filelist[*]})
+    done
+}
+
 function file_name_expand() {
 
     # print help

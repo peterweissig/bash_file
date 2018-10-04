@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[filename]****************************************
-# 2018 09 26
+# 2018 10 04
 
 function file_name_clean() {
 
@@ -14,7 +14,7 @@ function file_name_clean() {
     if [ "$1" == "--help" ]; then
         echo "$FUNCNAME needs 0-1 parameters"
         echo "    [#1:]search-expression (e.g. \"*.jpg\")"
-        echo "         Leave option empty to rename all regular files."
+        echo "         Leave option empty to rename all files and dirs."
         echo "         For wildcard-expressions please use double-quotes."
         echo "The files will be renamed to remove ä, ü, ö, ß and spaces."
         echo "  (e.g. from \"file ä ß Ö.ext\" to file_ae_ss_Oe.ext)"
@@ -53,14 +53,15 @@ function file_name_clean() {
 
     if [ $changed -eq 0 ]; then
         # output if nothing was changed
-        echo "All files comply :-)"
+        echo "All files and dirs comply :-)"
         return
     fi
 
     # ask user if continuing
-    echo -n "Do you wish to continue (N/y)?"
+    echo -n "Do you wish to continue (Y/n)?"
     read answer
-    if [ "$answer" != "y" ] && [ "$answer" != "Y" ] && \
+    if [ "$answer" != "" ] && \
+      [ "$answer" != "y" ] && [ "$answer" != "Y" ] && \
       [ "$answer" != "yes" ]; then
 
         echo "$FUNCNAME: Aborted."
@@ -96,9 +97,9 @@ function file_name_expand() {
         echo "     #1: additional prefix (e.g. file_)"
         echo "    [#2:]additional suffix (e.g. _new)"
         echo "    [#3:]search-expression (e.g. \"*.jpg\")"
-        echo "         Leave option empty to rename all regular files."
+        echo "         Leave option empty to rename all files and dirs."
         echo "         For wildcard-expressions please use double-quotes."
-        echo "The output files will be named"
+        echo "The output files and dirs will be named"
         echo "  \"<path><prefix><filename><suffix><extension>\"."
         echo "  (e.g. from image.jpg to file_image_new.jpg)."
 

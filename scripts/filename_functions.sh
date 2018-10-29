@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[filename]****************************************
-# 2018 10 04
+# 2018 10 29
 
 function file_name_clean() {
 
@@ -34,7 +34,7 @@ function file_name_clean() {
     corrected=()
 
     # read all filenames
-    readarray -t filelist <<< "$(ls $1)"
+    readarray -t filelist <<< "$(ls "$1")"
 
     # iterate over all files
     for i in ${!filelist[@]}; do
@@ -177,19 +177,19 @@ function file_name_expand() {
     updated=()
 
     # read all filenames
-    readarray -t filelist <<< "$(ls $3)"
+    readarray -t filelist <<< "$(ls "$3")"
 
     # iterate over all files
     for i in ${!filelist[@]}; do
         # split filename
-        path="$(dirname ${filelist[$i]})"
+        path="$(dirname "${filelist[$i]}")"
         if [ "$path" == "." ]; then
             path="";
         else
             path="${path}/";
         fi
 
-        baseext="$(basename ${filelist[$i]})"
+        baseext="$(basename "${filelist[$i]}")"
         base="${baseext%.*}"
         ext="${baseext/*./.}"
         if [ "$ext" == "$baseext" ]; then

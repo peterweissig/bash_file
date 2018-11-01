@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[backup]******************************************
-# 2018 10 30
+# 2018 11 01
 
 function _file_backup_base() {
 
@@ -18,7 +18,7 @@ function _file_backup_base() {
         echo "     #2: path of backup-folder (e.g. \"~/backup/\")"
         echo "         this string needs to end in \"/\""
         echo "     #3: naming convention - either prefix or suffix filename"
-        echo   "         with current date (and consecutive number)"
+        echo "         with current date (and consecutive number)"
         echo "         \"prefix\" --> ~/backup/2018_10_30[_004]__table.odt"
         echo "         \"suffix\" --> ~/backup/fstab__2017_11_01[_002]"
         echo "This function will copy the given file to the backup-folder"
@@ -41,9 +41,6 @@ function _file_backup_base() {
         return -1
     fi
 
-    # TODO
-    echo "$FUNCNAME: TODO - remove old prefix/suffix date!"
-
     # init variables
     filename="$1"
     filebase="$(basename "$filename")"
@@ -60,6 +57,67 @@ function _file_backup_base() {
     if [ ! -f "$filename" ]; then
         echo "$FUNCNAME: File \"$filename\" not found."
         return -2
+    fi
+
+    # check for simplification of name
+    # check prefix of filename
+    remove_count=0
+    if [ ${#filebase} -gt 5 ] && \
+      [[ "${filebase:0:5}" == [0-9][0-9][0-9][0-9]_ ]]; then
+
+        # check "year_month_" (before filename)
+        if [ ${#filebase} -gt 8 ] && \
+          [[ "${filebase:5:3}" == [0-9][0-9]_ ]]; then
+
+            # check "year_month_day_" (before filename)
+            if [ ${#filebase} -gt 11 ] && \
+              [[ "${filebase:8:3}" == [0-9][0-9]_ ]]; then
+
+                # check "year_month_day_nrs_" (before filename)
+                if [ ${#filebase} -gt 15 ] && \
+                  [[ "${filebase:11:4}" == [0-9][0-9][0-9]_ ]]; then
+                    # removing all
+                    remove_count=15
+                else
+                    # removing year, month and day
+                    remove_count=11
+                fi
+            else
+                # removing year and month
+                remove_count=8
+            fi
+        else
+            # removing year
+            remove_count=5
+        fi
+    fi
+    while [ "${filebase:${remove_count}:1}" == "_" ]; do
+        remove_count=$(( $remove_count + 1 ))
+    done
+    if [ "${remove_count}" -gt 0 ]; then
+        echo "ignoring prefix \"${filebase:0:${remove_count}}\""
+        filebase="${filebase:${remove_count}}"
+    fi
+
+    # check suffix of filename
+    remove_count=0
+    temp="_[0-9][0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9]"
+    if [ ${#filebase} -gt 15 ] && [[ "${filebase:0:15}" == $temp ]]; then
+        # removing all
+        remove_count=15
+    else
+        temp="_[0-9][0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9]"
+        if [ ${#filebase} -gt 11 ] && [[ "${filebase:0:11}" == $temp ]]; then
+            # removing year, month and day
+            remove_count=11
+        fi
+    fi
+    while [ "${filebase: -${remove_count}:1}" == "_" ]; do
+        remove_count=$(( $remove_count - 1 ))
+    done
+    if [ "${remove_count}" -gt 0 ]; then
+        echo "ignoring suffix \"${filebase: -${remove_count}}\""
+        filebase="${filebase:0:${#filebase}-${remove_count}}"
     fi
 
     # check backup path (eventually create it)
@@ -190,16 +248,10 @@ function file_backup_simple() {
         return -1
     fi
 
-    # TODO
-    echo "$FUNCNAME: TODO - check if already in backup-folder!"
-    echo "    (not data folder)"
-
     # init variables
     filename="$1"
     filepath="$(dirname  "$filename")"
-    if [ "$filepath" == "." ]; then
-        filepath=""
-    else
+    if [ "$filepath" != "/" ]; then
         filepath="${filepath}/"
     fi
 
@@ -210,12 +262,18 @@ function file_backup_simple() {
     fi
 
     # check for possible backup path
-    backup_path="${filepath}backup/"
-    if [ ! -d "$backup_path" ]; then
-        backup_path2="${filepath}data/"
-        if [ -d "$backup_path2" ]; then
-            echo "using \"$backup_path2\" as backup-folder"
-            backup_path="$backup_path2"
+    if [ "$(basename "$(readlink -ms "${filepath}")")" == "backup" ]; then
+        echo "already within backup-folder"
+        backup_path="${filepath}"
+
+    else
+        backup_path="${filepath}backup/"
+        if [ ! -d "$backup_path" ]; then
+            backup_path2="${filepath}data/"
+            if [ -d "$backup_path2" ]; then
+                echo "using \"$backup_path2\" as backup-folder"
+                backup_path="$backup_path2"
+            fi
         fi
     fi
 

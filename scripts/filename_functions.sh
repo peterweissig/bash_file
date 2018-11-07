@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[filename]****************************************
-# 2018 10 29
+# 2018 11 05
 
 function file_name_clean() {
 
@@ -34,7 +34,11 @@ function file_name_clean() {
     corrected=()
 
     # read all filenames
-    readarray -t filelist <<< "$(ls "$1")"
+    if [ "$1" == "" ]; then
+        readarray -t filelist <<< "$(ls)"
+    else
+        readarray -t filelist <<< "$(ls "$1")"
+    fi
 
     # iterate over all files
     for i in ${!filelist[@]}; do

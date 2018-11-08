@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[backup]******************************************
-# 2018 11 01
+# 2018 11 08
 
 function _file_backup_base() {
 
@@ -95,7 +95,7 @@ function _file_backup_base() {
         remove_count=$(( $remove_count + 1 ))
     done
     if [ "${remove_count}" -gt 0 ]; then
-        echo "ignoring prefix \"${filebase:0:${remove_count}}\""
+        #echo "ignoring prefix \"${filebase:0:${remove_count}}\""
         filebase="${filebase:${remove_count}}"
     fi
 
@@ -116,7 +116,7 @@ function _file_backup_base() {
         remove_count=$(( $remove_count - 1 ))
     done
     if [ "${remove_count}" -gt 0 ]; then
-        echo "ignoring suffix \"${filebase: -${remove_count}}\""
+        #echo "ignoring suffix \"${filebase: -${remove_count}}\""
         filebase="${filebase:0:${#filebase}-${remove_count}}"
     fi
 
@@ -186,7 +186,7 @@ function _file_backup_base() {
             arr=("${backup_path}${filebase}__${file_date}_"[0-9][0-9][0-9])
         fi
         if [ "${#arr[*]}" -gt 1 ] || [ "${arr[0]}" != "${temp}" ]; then
-            echo "found other backup(s) - extending backup name"
+            #echo "found other backup(s) - extending backup name"
             found=1
         fi
     fi
@@ -262,8 +262,9 @@ function file_backup_simple() {
     fi
 
     # check for possible backup path
-    if [ "$(basename "$(readlink -ms "${filepath}")")" == "backup" ]; then
-        echo "already within backup-folder"
+    temp="$(basename "$(readlink -ms "${filepath}")")"
+    if [ "$temp" == "backup" ] || [ "$temp" == "data" ]; then
+        #echo "already within backup-folder"
         backup_path="${filepath}"
 
     else
@@ -271,7 +272,7 @@ function file_backup_simple() {
         if [ ! -d "$backup_path" ]; then
             backup_path2="${filepath}data/"
             if [ -d "$backup_path2" ]; then
-                echo "using \"$backup_path2\" as backup-folder"
+                #echo "using \"$backup_path2\" as backup-folder"
                 backup_path="$backup_path2"
             fi
         fi

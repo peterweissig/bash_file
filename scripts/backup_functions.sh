@@ -159,7 +159,7 @@ function _file_backup_base() {
         fi
 
         # ask user if continuing
-        echo -n "Do you wish to continue (Y/n)?"
+        echo -n "Do you wish to continue ? (Yes/no)"
         read answer
         if [ "$answer" != "" ] && \
           [ "$answer" != "y" ] && [ "$answer" != "Y" ] && \

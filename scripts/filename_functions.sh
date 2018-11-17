@@ -62,7 +62,7 @@ function file_name_clean() {
     fi
 
     # ask user if continuing
-    echo -n "Do you wish to continue (Y/n)?"
+    echo -n "Do you wish to continue ? (Yes/no)"
     read answer
     if [ "$answer" != "" ] && \
       [ "$answer" != "y" ] && [ "$answer" != "Y" ] && \
@@ -215,7 +215,7 @@ function file_name_expand() {
     fi
 
     # ask user if continuing
-    echo -n "Do you wish to continue (N/y)?"
+    echo -n "Do you wish to continue ? (No/yes)"
     read answer
     if [ "$answer" != "y" ] && [ "$answer" != "Y" ] && \
       [ "$answer" != "yes" ]; then

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#***************************[filename]****************************************
+#***************************[clear filename]**********************************
 # 2018 11 05
 
 function file_name_clean() {
@@ -147,6 +147,9 @@ function file_name_clean_recursive() {
     done
 }
 
+#***************************[expand filename]*********************************
+# 2018 12 01
+
 function file_name_expand() {
 
     # print help
@@ -181,7 +184,11 @@ function file_name_expand() {
     updated=()
 
     # read all filenames
-    readarray -t filelist <<< "$(ls "$3")"
+    if [ $# -lt 3 ]; then
+        readarray -t filelist <<< "$(ls)"
+    else
+        readarray -t filelist <<< "$(ls "$3")"
+    fi
 
     # iterate over all files
     for i in ${!filelist[@]}; do

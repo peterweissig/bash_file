@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[clear filename]**********************************
-# 2018 11 05
+# 2018 12 29
 
 function file_name_clean() {
 
@@ -18,6 +18,8 @@ function file_name_clean() {
         echo "         For wildcard-expressions please use double-quotes."
         echo "The files will be renamed to remove ä, ü, ö, ß and spaces."
         echo "  (e.g. from \"file ä ß Ö.ext\" to file_ae_ss_Oe.ext)"
+        echo "Any character except for alphanumerics (A-Z & 0-9) and some"
+        echo "  special characters (_.,;*+-=#~()) will be replaced by an #."
 
         return
     fi
@@ -46,7 +48,8 @@ function file_name_clean() {
         corrected[i]=$(echo "${filelist[$i]}" | \
           sed 's/[ /\:]\+/_/g' | \
           sed 's/ä/ae/g; s/ü/ue/g; s/ö/oe/g; s/Ä/Ae/g; s/Ü/Ue/g; s/Ö/Oe/g' | \
-          sed 's/ß/ss/g');
+          sed 's/ß/ss/g' | \
+          sed 's/[^-a-zA-Z0-9_.,;*+=#~()]/#/g');
 
         # check if filename would change
         if [ "${filelist[$i]}" != "${corrected[$i]}" ]; then
@@ -103,6 +106,8 @@ function file_name_clean_recursive() {
         echo "         For wildcard-expressions please use double-quotes."
         echo "The files will be renamed to remove ä, ü, ö, ß and spaces."
         echo "  (e.g. from \"file ä ß Ö.ext\" to file_ae_ss_Oe.ext)"
+        echo "Any character except for alphanumerics (A-Z & 0-9) and some"
+        echo "  special characters (_.,;*+-=#~()) will be replaced by an #."
 
         return
     fi

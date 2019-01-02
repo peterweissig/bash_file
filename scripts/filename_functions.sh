@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[clear filename]**********************************
-# 2018 12 29
+# 2019 01 02
 
 function file_name_clean() {
 
@@ -37,19 +37,25 @@ function file_name_clean() {
 
     # read all filenames
     if [ "$1" == "" ]; then
-        readarray -t filelist <<< "$(ls)"
+        readarray -t filelist <<< "$(ls --quote-name)"
     else
-        readarray -t filelist <<< "$(ls "$1")"
+        readarray -t filelist <<< "$(ls --quote-name "$1")"
     fi
 
     # iterate over all files
     for i in ${!filelist[@]}; do
+        # remove outer quotes
+        temp="$(echo "${filelist[$i]:1:-1}")"
+
+        # expand special characters and simplify \" to "
+        filelist[$i]="$(printf "${temp}")"
+
         # replace bad letters
-        corrected[i]=$(echo "${filelist[$i]}" | \
-          sed 's/[ /\:]\+/_/g' | \
+        corrected[i]="$(echo -n "${filelist[$i]}" | \
+          sed -z 's/[ /\t\n]\+/_/g' | \
           sed 's/ä/ae/g; s/ü/ue/g; s/ö/oe/g; s/Ä/Ae/g; s/Ü/Ue/g; s/Ö/Oe/g' | \
           sed 's/ß/ss/g' | \
-          sed 's/[^-a-zA-Z0-9_.,;*+=#~()]/#/g');
+          sed 's/[^-a-zA-Z0-9_.,;*+=#~()]/#/g')";
 
         # check if filename would change
         if [ "${filelist[$i]}" != "${corrected[$i]}" ]; then

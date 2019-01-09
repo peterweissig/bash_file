@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[clear filename]**********************************
-# 2019 01 02
+# 2019 01 09
 
 function file_name_clean() {
 
@@ -51,7 +51,7 @@ function file_name_clean() {
         filelist[$i]="$(printf "${temp}")"
 
         # replace bad letters
-        corrected[i]="$(echo -n "${filelist[$i]}" | \
+        corrected[$i]="$(echo -n "${filelist[$i]}" | \
           sed -z 's/[ /\t\n]\+/_/g' | \
           sed 's/ä/ae/g; s/ü/ue/g; s/ö/oe/g; s/Ä/Ae/g; s/Ü/Ue/g; s/Ö/Oe/g' | \
           sed 's/ß/ss/g' | \
@@ -224,6 +224,110 @@ function file_name_expand() {
         # rename file
         echo "  \"${filelist[$i]}\" ==> \"${updated[$i]}\""
         changed=1
+    done
+
+    if [ $changed -eq 0 ]; then
+        # output if nothing was changed
+        echo "No files found :-("
+        return
+    fi
+
+    # ask user if continuing
+    echo -n "Do you wish to continue ? (No/yes)"
+    read answer
+    if [ "$answer" != "y" ] && [ "$answer" != "Y" ] && \
+      [ "$answer" != "yes" ]; then
+
+        echo "$FUNCNAME: Aborted."
+        return
+    fi
+
+    # iterate over all files
+    for i in ${!filelist[@]}; do
+        # check for errors
+        if [ $? -ne 0 ]; then
+            echo "$FUNCNAME: Stopping because of an error."
+            return -1;
+        fi
+
+        # check if filename would change
+        if [ "${filelist[$i]}" != "${updated[$i]}" ]; then
+            echo "renaming \"${updated[$i]}\""
+            mv "${filelist[$i]}" "${updated[$i]}"
+        fi
+    done
+}
+
+#***************************[erode filename]**********************************
+# 2019 01 09
+
+function file_name_erode() {
+
+    # print help
+    if [ "$1" == "-h" ]; then
+        echo "$FUNCNAME <prefix> [<suffix>] [<filter>]"
+
+        return
+    fi
+    if [ "$1" == "--help" ]; then
+        echo "$FUNCNAME needs 1-3 parameters"
+        echo "     #1: additional prefix (e.g. file_)"
+        echo "    [#2:]additional suffix (e.g. _new)"
+        echo "    [#3:]search-expression (e.g. \"*.jpg\")"
+        echo "         Leave option empty to rename all files and dirs."
+        echo "         For wildcard-expressions please use double-quotes."
+        echo "The output files and dirs will be named"
+        echo "  \"<path><filename without prefix or suffix><extension>\"."
+        echo "  (e.g. from file_image_new.jpg to image.jpg)."
+
+        return
+    fi
+
+    # check parameter
+    if [ $# -lt 1 ] || [ $# -gt 3 ]; then
+        echo "$FUNCNAME: Parameter Error."
+        $FUNCNAME --help
+        return -1
+    fi
+
+    # init variables
+    changed=0
+    updated=()
+
+    # read all filenames
+    if [ $# -lt 3 ]; then
+        readarray -t filelist <<< "$(ls)"
+    else
+        readarray -t filelist <<< "$(ls "$3")"
+    fi
+
+    # iterate over all files
+    for i in ${!filelist[@]}; do
+        # split filename
+        path="$(dirname "${filelist[$i]}")"
+        if [ "$path" == "." ]; then
+            path="";
+        else
+            path="${path}/";
+        fi
+
+        baseext="$(basename "${filelist[$i]}")"
+        base="${baseext%.*}"
+        ext="${baseext/*./.}"
+        if [ "$ext" == "$baseext" ]; then
+            ext="";
+        fi
+
+        # create new name
+        updated[$i]="$(echo -n "${filelist[$i]}" | \
+          sed "s/^${1}\\(.*\\)${2}\$/\1/")";
+          # sed "s/^<prefix>\(.*\)<suffix>$/\1/"
+
+        # rename file
+        if [ "${filelist[$i]}" != "${updated[$i]}" ]; then
+            echo "  \"${filelist[$i]}\" ==> \"${updated[$i]}\""
+            changed=1
+        fi
     done
 
     if [ $changed -eq 0 ]; then

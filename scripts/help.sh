@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[all]*********************************************
-# 2018 10 31
+# 2019 01 09
 
 function file_help_all() {
 
@@ -38,6 +38,7 @@ function file_help_all() {
     echo -n "  "; file_name_clean -h
     echo -n "  "; file_name_clean_recursive -h
     echo -n "  "; file_name_expand -h
+    echo -n "  "; file_name_erode -h
     echo ""
     echo "backup"
     echo -n "  "; file_backup_simple -h
@@ -47,7 +48,7 @@ function file_help_all() {
 }
 
 #***************************[help]********************************************
-# 2018 10 31
+# 2019 01 09
 
 function file_help() {
 
@@ -61,6 +62,7 @@ function file_help() {
     echo "filenames"
     echo -n "  "; file_name_clean -h
     echo -n "  "; file_name_expand -h
+    echo -n "  "; file_name_erode -h
     echo ""
     echo "backup"
     echo -n "  "; file_backup_simple -h

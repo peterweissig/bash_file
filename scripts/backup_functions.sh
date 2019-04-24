@@ -1,20 +1,20 @@
 #!/bin/bash
 
 #***************************[_file_backup_simplify_name]**********************
-# 2018 11 08
+# 2019 04 24
 
 function _file_backup_simplify_name() {
 
     # print help
     if [ "$1" == "-h" ]; then
-        echo "$FUNCNAME <filename> [<name_style>]"
+        echo "$FUNCNAME <basename> [<name_style>]"
 
         return
     fi
     if [ "$1" == "--help" ]; then
-        echo "$FUNCNAME needs 2 parameters"
-        echo "     #1: name of file to be backed up"
-        echo "         (e.g. \"~/table.odt\" or \"/etc/fstab\")"
+        echo "$FUNCNAME needs 1-2 parameters"
+        echo "     #1: basename of file to be backed up"
+        echo "         (e.g. \"table.odt\" or \"fstab\")"
         echo "    [#2:]naming convention - prefix, suffix or both"
         echo "         \"prefix\" --> only remove prepended date/number"
         echo "         \"suffix\" --> only remove extended  date/number"
@@ -59,7 +59,7 @@ function _file_backup_simplify_name() {
     fi
 
     # init variables
-    filebase="$(basename "$1")"
+    filebase="$1"
 
     # check for simplification of name
     # check prefix of filename
@@ -131,7 +131,7 @@ function _file_backup_simplify_name() {
 
 
 #***************************[_file_backup_base]*******************************
-# 2018 11 08
+# 2019 04 24
 
 function _file_backup_base() {
 

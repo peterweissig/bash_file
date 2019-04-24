@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[all]*********************************************
-# 2019 01 09
+# 2019 04 24
 
 function file_help_all() {
 
@@ -44,6 +44,7 @@ function file_help_all() {
     echo -n "  "; file_backup_simple -h
     echo -n "  "; file_backup_inplace -h
     echo -n "  "; _file_backup_base -h
+    echo -n "  "; _file_backup_simplify_name -h
     echo ""
 }
 

@@ -1,6 +1,136 @@
 #!/bin/bash
 
-#***************************[backup]******************************************
+#***************************[_file_backup_simplify_name]**********************
+# 2018 11 08
+
+function _file_backup_simplify_name() {
+
+    # print help
+    if [ "$1" == "-h" ]; then
+        echo "$FUNCNAME <filename> [<name_style>]"
+
+        return
+    fi
+    if [ "$1" == "--help" ]; then
+        echo "$FUNCNAME needs 2 parameters"
+        echo "     #1: name of file to be backed up"
+        echo "         (e.g. \"~/table.odt\" or \"/etc/fstab\")"
+        echo "    [#2:]naming convention - prefix, suffix or both"
+        echo "         \"prefix\" --> only remove prepended date/number"
+        echo "         \"suffix\" --> only remove extended  date/number"
+        echo "         \"both\"   --> remove prefix and suffix (default)"
+        echo "This function will simplify the given filename and strip"
+        echo "possible dates (and consecutive numbers)."
+
+        return
+    fi
+
+    # check parameter
+    if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+        echo "$FUNCNAME: Parameter Error."
+        $FUNCNAME --help
+        return -1
+    fi
+
+    # check name style
+    if [ $# -gt 1 ]; then
+        name_style="$2"
+    else
+        name_style="both"
+    fi
+
+    remove_prefix=0
+    remove_suffix=0
+    if [ "$name_style" == "prefix" ]; then
+        remove_prefix=1
+    fi
+    if [ "$name_style" == "suffix" ]; then
+        remove_suffix=1
+    fi
+    if [ "$name_style" == "both" ]; then
+        remove_prefix=1
+        remove_suffix=1
+    fi
+
+    if [ $remove_prefix -eq 0 ] && [ $remove_suffix -eq 0 ]; then
+        echo "$FUNCNAME: Naming style must be prefix, suffix or both."
+        echo "  (not \"$name_style\")"
+        return -1
+    fi
+
+    # init variables
+    filebase="$(basename "$1")"
+
+    # check for simplification of name
+    # check prefix of filename
+    if [ $remove_prefix -gt 0 ]; then
+        remove_count=0
+        if [ ${#filebase} -gt 5 ] && \
+        [[ "${filebase:0:5}" == [0-9][0-9][0-9][0-9]_ ]]; then
+
+            # check "year_month_" (before filename)
+            if [ ${#filebase} -gt 8 ] && \
+            [[ "${filebase:5:3}" == [0-9][0-9]_ ]]; then
+
+                # check "year_month_day_" (before filename)
+                if [ ${#filebase} -gt 11 ] && \
+                [[ "${filebase:8:3}" == [0-9][0-9]_ ]]; then
+
+                    # check "year_month_day_nrs_" (before filename)
+                    if [ ${#filebase} -gt 15 ] && \
+                    [[ "${filebase:11:4}" == [0-9][0-9][0-9]_ ]]; then
+                        # removing all
+                        remove_count=15
+                    else
+                        # removing year, month and day
+                        remove_count=11
+                    fi
+                else
+                    # removing year and month
+                    remove_count=8
+                fi
+            else
+                # removing year
+                remove_count=5
+            fi
+        fi
+        while [ "${filebase:${remove_count}:1}" == "_" ]; do
+            remove_count=$(( $remove_count + 1 ))
+        done
+        if [ "${remove_count}" -gt 0 ]; then
+            #echo "ignoring prefix \"${filebase:0:${remove_count}}\""
+            filebase="${filebase:${remove_count}}"
+        fi
+    fi
+
+    # check suffix of filename
+    if [ $remove_suffix -gt 0 ]; then
+        remove_count=0
+        temp="_[0-9][0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9]"
+        if [ ${#filebase} -gt 15 ] && [[ "${filebase: -15:15}" == $temp ]]; then
+            # removing all
+            remove_count=15
+        else
+            temp="_[0-9][0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9]"
+            if [ ${#filebase} -gt 11 ] && [[ "${filebase: -11:11}" == $temp ]]; then
+                # removing year, month and day
+                remove_count=11
+            fi
+        fi
+        while [ "${filebase: -${remove_count}:1}" == "_" ]; do
+            remove_count=$(( $remove_count + 1 ))
+        done
+        if [ "${remove_count}" -gt 0 ]; then
+            #echo "ignoring suffix \"${filebase: -${remove_count}}\""
+            filebase="${filebase:0:${#filebase}-${remove_count}}"
+        fi
+    fi
+
+    echo "$filebase"
+}
+
+
+#***************************[_file_backup_base]*******************************
 # 2018 11 08
 
 function _file_backup_base() {
@@ -60,64 +190,11 @@ function _file_backup_base() {
     fi
 
     # check for simplification of name
-    # check prefix of filename
-    remove_count=0
-    if [ ${#filebase} -gt 5 ] && \
-      [[ "${filebase:0:5}" == [0-9][0-9][0-9][0-9]_ ]]; then
-
-        # check "year_month_" (before filename)
-        if [ ${#filebase} -gt 8 ] && \
-          [[ "${filebase:5:3}" == [0-9][0-9]_ ]]; then
-
-            # check "year_month_day_" (before filename)
-            if [ ${#filebase} -gt 11 ] && \
-              [[ "${filebase:8:3}" == [0-9][0-9]_ ]]; then
-
-                # check "year_month_day_nrs_" (before filename)
-                if [ ${#filebase} -gt 15 ] && \
-                  [[ "${filebase:11:4}" == [0-9][0-9][0-9]_ ]]; then
-                    # removing all
-                    remove_count=15
-                else
-                    # removing year, month and day
-                    remove_count=11
-                fi
-            else
-                # removing year and month
-                remove_count=8
-            fi
-        else
-            # removing year
-            remove_count=5
-        fi
-    fi
-    while [ "${filebase:${remove_count}:1}" == "_" ]; do
-        remove_count=$(( $remove_count + 1 ))
-    done
-    if [ "${remove_count}" -gt 0 ]; then
-        #echo "ignoring prefix \"${filebase:0:${remove_count}}\""
-        filebase="${filebase:${remove_count}}"
-    fi
-
-    # check suffix of filename
-    remove_count=0
-    temp="_[0-9][0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9]"
-    if [ ${#filebase} -gt 15 ] && [[ "${filebase:0:15}" == $temp ]]; then
-        # removing all
-        remove_count=15
-    else
-        temp="_[0-9][0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9]"
-        if [ ${#filebase} -gt 11 ] && [[ "${filebase:0:11}" == $temp ]]; then
-            # removing year, month and day
-            remove_count=11
-        fi
-    fi
-    while [ "${filebase: -${remove_count}:1}" == "_" ]; do
-        remove_count=$(( $remove_count - 1 ))
-    done
-    if [ "${remove_count}" -gt 0 ]; then
-        #echo "ignoring suffix \"${filebase: -${remove_count}}\""
-        filebase="${filebase:0:${#filebase}-${remove_count}}"
+    filebase="$(_file_backup_simplify_name "$filebase")"
+    if [ $? -ne 0 ]; then
+        echo "$filebase"
+        echo "$FUNCNAME: Stopping because of an error."
+        return -1;
     fi
 
     # check backup path (eventually create it)
@@ -221,6 +298,10 @@ function _file_backup_base() {
     return -3;
 }
 
+
+#***************************[file_backup_simple]******************************
+# 2018 11 08
+
 function file_backup_simple() {
 
     # print help
@@ -280,6 +361,10 @@ function file_backup_simple() {
 
     _file_backup_base "$filename" "$backup_path" "prefix"
 }
+
+
+#***************************[file_backup_inplace]*****************************
+# 2018 11 08
 
 function file_backup_inplace() {
 

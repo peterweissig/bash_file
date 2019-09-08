@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[_file_backup_simplify_name]**********************
-# 2019 04 24
+# 2019 09 08
 
 function _file_backup_simplify_name() {
 
@@ -120,6 +120,7 @@ function _file_backup_simplify_name() {
         while [ "${filebase: -${remove_count}:1}" == "_" ]; do
             remove_count=$(( $remove_count + 1 ))
         done
+        remove_count=$(( $remove_count - 1 ))
         if [ "${remove_count}" -gt 0 ]; then
             #echo "ignoring suffix \"${filebase: -${remove_count}}\""
             filebase="${filebase:0:${#filebase}-${remove_count}}"

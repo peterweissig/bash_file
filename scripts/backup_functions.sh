@@ -132,13 +132,14 @@ function _file_backup_simplify_name() {
 
 
 #***************************[_file_backup_base]*******************************
-# 2019 04 24
+# 2019 09 08
 
 function _file_backup_base() {
 
     # print help
     if [ "$1" == "-h" ]; then
-        echo "$FUNCNAME <filename> <backup_path> <name_style>"
+        echo -n "$FUNCNAME <filename> <backup_path> <name_style> "
+        echo "[<auto-answer>]"
 
         return
     fi
@@ -152,6 +153,8 @@ function _file_backup_base() {
         echo "         with current date (and consecutive number)"
         echo "         \"prefix\" --> ~/backup/2018_10_30[_004]__table.odt"
         echo "         \"suffix\" --> ~/backup/fstab__2017_11_01[_002]"
+        echo "    [#4:]using auto-answer for secondary backup"
+        echo "         (must be -y or --yes)"
         echo "This function will copy the given file to the backup-folder"
         echo "and prepend or extend it with the current date."
 
@@ -159,7 +162,7 @@ function _file_backup_base() {
     fi
 
     # check parameter
-    if [ $# -ne 3 ]; then
+    if [ $# -lt 3 ] || [ $# -gt 4 ]; then
         echo "$FUNCNAME: Parameter Error."
         $FUNCNAME --help
         return -1
@@ -238,7 +241,12 @@ function _file_backup_base() {
 
         # ask user if continuing
         echo -n "Do you wish to continue ? (Yes/no)"
-        read answer
+        if [ "$4" != "-y" ] && [ "$4" != "--yes" ]; then
+            read answer
+        else
+            echo "<auto answer \"yes\">"
+            answer="yes"
+        fi
         if [ "$answer" != "" ] && \
           [ "$answer" != "y" ] && [ "$answer" != "Y" ] && \
           [ "$answer" != "yes" ]; then

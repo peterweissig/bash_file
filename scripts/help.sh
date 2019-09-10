@@ -32,7 +32,7 @@ function file_help_all() {
     echo ""
     echo "help"
     echo -n "  "; echo "file_help  #no help"
-    echo -n "  "; file_help_all -h
+    echo -n "  "; $FUNCNAME -h
     echo ""
     echo "filenames"
     echo -n "  "; file_name_clean -h
@@ -57,7 +57,7 @@ function file_help() {
     echo "### $FUNCNAME ###"
     echo ""
     echo "help functions"
-    echo -n "  "; echo "file_help  #no help"
+    echo -n "  "; echo "$FUNCNAME  #no help"
     echo -n "  "; file_help_all -h
     echo ""
     echo "filenames"

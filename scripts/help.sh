@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[all]*********************************************
-# 2019 04 24
+# 2019 09 10
 
 function file_help_all() {
 
@@ -31,7 +31,7 @@ function file_help_all() {
     echo "### $FUNCNAME ###"
     echo ""
     echo "help"
-    echo -n "  "; echo "file_help"
+    echo -n "  "; echo "file_help  #no help"
     echo -n "  "; file_help_all -h
     echo ""
     echo "filenames"
@@ -49,7 +49,7 @@ function file_help_all() {
 }
 
 #***************************[help]********************************************
-# 2019 01 09
+# 2019 09 10
 
 function file_help() {
 
@@ -57,7 +57,7 @@ function file_help() {
     echo "### $FUNCNAME ###"
     echo ""
     echo "help functions"
-    echo -n "  "; echo "file_help"
+    echo -n "  "; echo "file_help  #no help"
     echo -n "  "; file_help_all -h
     echo ""
     echo "filenames"

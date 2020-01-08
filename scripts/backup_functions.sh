@@ -132,19 +132,19 @@ function _file_backup_simplify_name() {
 
 
 #***************************[_file_backup_base]*******************************
-# 2019 09 08
+# 2020 01 08
 
 function _file_backup_base() {
 
     # print help
     if [ "$1" == "-h" ]; then
         echo -n "$FUNCNAME <filename> <backup_path> <name_style> "
-        echo "[<auto-answer>]"
+        echo "[<auto-answer>] [<copy-with-sudo>]"
 
         return
     fi
     if [ "$1" == "--help" ]; then
-        echo "$FUNCNAME needs 3 parameters"
+        echo "$FUNCNAME needs 3-5 parameters"
         echo "     #1: name/path of file to be backed up"
         echo "         (e.g. \"~/table.odt\" or \"/etc/fstab\")"
         echo "     #2: path of backup-folder (e.g. \"~/backup/\")"
@@ -154,7 +154,9 @@ function _file_backup_base() {
         echo "         \"prefix\" --> ~/backup/2018_10_30[_004]__table.odt"
         echo "         \"suffix\" --> ~/backup/fstab__2017_11_01[_002]"
         echo "    [#4:]using auto-answer for secondary backup"
-        echo "         (must be -y or --yes)"
+        echo "         (must be \"-y\" or \"--yes\" to be in effect)"
+        echo "    [#5:]using sudo to read and copy file"
+        echo "         (must be \"sudo\" to be in effect)"
         echo "This function will copy the given file to the backup-folder"
         echo "and prepend or extend it with the current date."
 
@@ -162,7 +164,7 @@ function _file_backup_base() {
     fi
 
     # check parameter
-    if [ $# -lt 3 ] || [ $# -gt 4 ]; then
+    if [ $# -lt 3 ] || [ $# -gt 5 ]; then
         echo "$FUNCNAME: Parameter Error."
         $FUNCNAME --help
         return -1
@@ -172,6 +174,13 @@ function _file_backup_base() {
     if [ "$name_style" != "prefix" ] && [ "$name_style" != "suffix" ]; then
         echo "$FUNCNAME: Naming style must be prefix or suffix."
         echo "  (not \"$name_style\")"
+        return -1
+    fi
+
+    sudo_flag="$5"
+    if [ "$sudo_flag" != "" ] && [ "$sudo_flag" != "sudo" ]; then
+        echo "$FUNCNAME: copy-with-sudo must be \"\" (empty) or sudo."
+        echo "  (not \"$sudo_flag\")"
         return -1
     fi
 
@@ -188,9 +197,14 @@ function _file_backup_base() {
     backup_path="${2}"
 
     # check if file exists
-    if [ ! -f "$filename" ]; then
-        echo "$FUNCNAME: File \"$filename\" not found."
-        return -2
+    if [ -f "$filename" ] && [ -r "$filename" ]; then
+        sudo_flag=""
+    else
+        if [ "$sudo_flag" != "sudo" ] || \
+          sudo [ ! -f "$filename" ]  || sudo [ ! -r "$filename" ]; then
+            echo "$FUNCNAME: File \"$filename\" not found or not readable."
+            return -2
+        fi
     fi
 
     # check for simplification of name
@@ -280,7 +294,12 @@ function _file_backup_base() {
     # if backup is simple, just store it
     if [ "$found" -eq 0 ]; then
         echo "creating backup \"${backup_simple}\""
-        cp "${filename}" "${backup_simple}"
+        if [ "$sudo_flag" != "sudo" ]; then
+            cp "${filename}" "${backup_simple}"
+        else
+            sudo cp "${filename}" "${backup_simple}"
+            sudo chown "$USER" "${backup_simple}"
+        fi
         return
     fi
 
@@ -296,7 +315,12 @@ function _file_backup_base() {
 
         if [ ! -e "${backup_nr}" ]; then
             echo "creating backup \"${backup_nr}\""
-            cp "${filename}" "${backup_nr}"
+            if [ "$sudo_flag" != "sudo" ]; then
+                cp "${filename}" "${backup_nr}"
+            else
+                sudo cp "${filename}" "${backup_nr}"
+                sudo chown "$USER" "${backup_nr}"
+            fi
             return
         fi
 

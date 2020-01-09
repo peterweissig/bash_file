@@ -1,8 +1,21 @@
 #!/bin/bash
 
 #***************************[clear filename]**********************************
-# 2019 01 10
+# 2020 01 09
 
+function _file_name_clean_string() {
+
+    # no help!
+
+    # replace bad letters
+    echo -n "$@" | \
+      sed -z 's/[ /\t\n]\+/_/g' | \
+      sed 's/ä/ae/g; s/ü/ue/g; s/ö/oe/g; s/Ä/Ae/g; s/Ü/Ue/g; s/Ö/Oe/g' | \
+      sed 's/ß/ss/g' | \
+      sed 's/[^-a-zA-Z0-9_.,;*+=#~()]/#/g'
+}
+
+# 2020 01 09
 function file_name_clean() {
 
     # print help
@@ -53,11 +66,7 @@ function file_name_clean() {
         filelist[$i]="$(printf "${temp}")"
 
         # replace bad letters
-        corrected[$i]="$(echo -n "${filelist[$i]}" | \
-          sed -z 's/[ /\t\n]\+/_/g' | \
-          sed 's/ä/ae/g; s/ü/ue/g; s/ö/oe/g; s/Ä/Ae/g; s/Ü/Ue/g; s/Ö/Oe/g' | \
-          sed 's/ß/ss/g' | \
-          sed 's/[^-a-zA-Z0-9_.,;*+=#~()]/#/g')";
+        corrected[$i]="$(_file_name_clean_string "${filelist[$i]}")";
 
         # correct extension
         ext="${corrected[$i]/*./.}"
@@ -108,6 +117,7 @@ function file_name_clean() {
     done
 }
 
+# 2019 01 10
 function file_name_clean_recursive() {
 
     # print help

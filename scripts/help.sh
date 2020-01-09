@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[all]*********************************************
-# 2019 09 10
+# 2020 01 09
 
 function file_help_all() {
 
@@ -39,6 +39,7 @@ function file_help_all() {
     echo -n "  "; file_name_clean_recursive -h
     echo -n "  "; file_name_expand -h
     echo -n "  "; file_name_erode -h
+    echo "  _file_name_clean_string  #no help"
     echo ""
     echo "backup"
     echo -n "  "; file_backup_simple -h

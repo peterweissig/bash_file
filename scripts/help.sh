@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[all]*********************************************
-# 2020 01 09
+# 2021 01 07
 
 function file_help_all() {
 
@@ -46,11 +46,15 @@ function file_help_all() {
     echo -n "  "; file_backup_inplace -h
     echo -n "  "; _file_backup_base -h
     echo -n "  "; _file_backup_simplify_name -h
+    if [ "$(type -t config_file_backup)" != "" ]; then
+        echo ""
+        echo -n "  see also: "; config_file_backup -h
+    fi
     echo ""
 }
 
 #***************************[help]********************************************
-# 2019 09 10
+# 2021 01 07
 
 function file_help() {
 
@@ -69,5 +73,9 @@ function file_help() {
     echo "backup"
     echo -n "  "; file_backup_simple -h
     echo -n "  "; file_backup_inplace -h
+    if [ "$(type -t config_file_backup)" != "" ]; then
+        echo ""
+        echo -n "  see also: "; config_file_backup -h
+    fi
     echo ""
 }

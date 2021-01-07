@@ -25,8 +25,9 @@ temp_local_path="$(realpath "$(dirname "${BASH_SOURCE}")" )/"
 
 
 #***************************[source]******************************************
-# 2018 10 29
+# 2021 01 07
 
 . ${temp_local_path}scripts/filename_functions.sh
 . ${temp_local_path}scripts/backup_functions.sh
+. ${temp_local_path}scripts/search_functions.sh
 . ${temp_local_path}scripts/help.sh

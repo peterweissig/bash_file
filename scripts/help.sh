@@ -51,6 +51,9 @@ function file_help_all() {
         echo -n "  see also: "; config_file_backup -h
     fi
     echo ""
+    echo "search"
+    echo -n "  "; file_search -h
+    echo ""
 }
 
 #***************************[help]********************************************
@@ -77,5 +80,8 @@ function file_help() {
         echo ""
         echo -n "  see also: "; config_file_backup -h
     fi
+    echo ""
+    echo "search"
+    echo -n "  "; file_search -h
     echo ""
 }

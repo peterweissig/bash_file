@@ -280,7 +280,7 @@ function file_name_expand() {
 }
 
 #***************************[erode filename]**********************************
-# 2019 01 09
+# 2022 06 12
 
 function file_name_erode() {
 
@@ -319,7 +319,7 @@ function file_name_erode() {
     if [ $# -lt 3 ]; then
         readarray -t filelist <<< "$(ls)"
     else
-        readarray -t filelist <<< "$(ls "$3")"
+        readarray -t filelist <<< "$(ls $3)"
     fi
 
     # iterate over all files
@@ -340,9 +340,10 @@ function file_name_erode() {
         fi
 
         # create new name
-        updated[$i]="$(echo -n "${filelist[$i]}" | \
-          sed "s/^${1}\\(.*\\)${2}\$/\1/")";
+        updated[$i]="$(echo -n "${base}" | \
+          sed "s/^${1}\\(.*\\)${2}\$/\\1/")";
           # sed "s/^<prefix>\(.*\)<suffix>$/\1/"
+        updated[$i]="${path}${updated[$i]}${ext}"
 
         # rename file
         if [ "${filelist[$i]}" != "${updated[$i]}" ]; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[_file_backup_simplify_name]**********************
-# 2019 09 08
+# 2022 09 05
 
 function _file_backup_simplify_name() {
 
@@ -19,8 +19,9 @@ function _file_backup_simplify_name() {
         echo "         \"prefix\" --> only remove prepended date/number"
         echo "         \"suffix\" --> only remove extended  date/number"
         echo "         \"both\"   --> remove prefix and suffix (default)"
-        echo "This function will simplify the given filename and strip"
+        echo "This function will simplify the given filename by stripping"
         echo "possible dates (and consecutive numbers)."
+        echo "In case of hidden files, the preceeding dot is always removed."
 
         return
     fi
@@ -127,12 +128,17 @@ function _file_backup_simplify_name() {
         fi
     fi
 
+    # check if final filename starts with an dot (hidden file)
+    if [ "${filebase:0:1}" == "." ]; then
+        filebase="${filebase:1}"
+    fi
+
     echo "$filebase"
 }
 
 
 #***************************[_file_backup_base]*******************************
-# 2020 01 08
+# 2022 09 05
 
 function _file_backup_base() {
 
@@ -159,6 +165,7 @@ function _file_backup_base() {
         echo "         (must be \"sudo\" to be in effect)"
         echo "This function will copy the given file to the backup-folder"
         echo "and prepend or extend it with the current date."
+        echo "In case of hidden files, the preceeding dot is always removed."
 
         return
     fi

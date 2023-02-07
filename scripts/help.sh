@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[all]*********************************************
-# 2021 01 07
+# 2023 02 07
 
 function file_help_all() {
 
@@ -37,8 +37,10 @@ function file_help_all() {
     echo "filenames"
     echo -n "  "; file_name_clean -h
     echo -n "  "; file_name_clean_recursive -h
+    echo -n "  "; file_name_clean_recursive_check -h
     echo -n "  "; file_name_expand -h
     echo -n "  "; file_name_erode -h
+    echo "  _file_name_clean_input   #no help"
     echo "  _file_name_clean_string  #no help"
     echo ""
     echo "backup"

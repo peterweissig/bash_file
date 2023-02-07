@@ -1,18 +1,25 @@
 #!/bin/bash
 
-#***************************[clear filename]**********************************
-# 2020 01 09
+#***************************[clean filename]**********************************
+# 2023 02 07
+
+function _file_name_clean_input() {
+
+    # no help!
+
+    # replace bad letters
+    sed 's/[ \t]\+/_/g;' | \
+    sed 's/ä/ae/g; s/ü/ue/g; s/ö/oe/g; s/Ä/Ae/g; s/Ü/Ue/g; s/Ö/Oe/g' | \
+    sed 's/ß/ss/g' | \
+    sed 's/[^-a-zA-Z0-9_.,;*+=#~()]/#/g'
+}
 
 function _file_name_clean_string() {
 
     # no help!
 
     # replace bad letters
-    echo -n "$@" | \
-      sed -z 's/[ /\t\n]\+/_/g' | \
-      sed 's/ä/ae/g; s/ü/ue/g; s/ö/oe/g; s/Ä/Ae/g; s/Ü/Ue/g; s/Ö/Oe/g' | \
-      sed 's/ß/ss/g' | \
-      sed 's/[^-a-zA-Z0-9_.,;*+=#~()]/#/g'
+    echo -n "$@" | sed -z 's/\n\+/ /g' | _file_name_clean_input
 }
 
 # 2020 01 09
@@ -172,12 +179,53 @@ function file_name_clean_recursive() {
         else
             (cd "${filelist[$i]}" && file_name_clean_recursive)
         fi
-            # check result
-            if [ $? -ne 0 ]; then return -1; fi
+        # check result
+        if [ $? -ne 0 ]; then return -1; fi
 
         filelist=("${file_name_clean_recursive__filelist[@]}")
     done
 }
+
+# 2023 02 06
+function file_name_clean_recursive_check() {
+
+    # print help
+    if [ "$1" == "-h" ]; then
+        echo "$FUNCNAME [<filter>]"
+
+        return
+    fi
+    if [ "$1" == "--help" ]; then
+        echo "$FUNCNAME needs 0-1 parameters"
+        echo "    [#1:]search-expression (e.g. \"*.jpg\")"
+        echo "         For wildcard-expressions please use double-quotes."
+        echo "Checks if any file/dir would be renamed."
+        echo "See also $ file_name_clean_recursive --help"
+
+        return
+    fi
+
+    # check parameter
+    if [ $# -gt 1 ]; then
+        echo "$FUNCNAME: Parameter Error."
+        $FUNCNAME --help
+        return -1
+    fi
+
+
+    # read all files
+    files_raw="$(find \! -path "*/.*" | xargs --max-args=1 basename)"
+    files_filtered="$(echo "$files_raw" | _file_name_clean_input)"
+
+    # find bad symbols
+    if [ "$files_raw" == "$files_filtered" ]; then
+        echo "all files and dirs comply :-)"
+    else
+        echo "some file name(s) can be cleaned"
+    fi
+}
+
+
 
 #***************************[expand filename]*********************************
 # 2018 12 01

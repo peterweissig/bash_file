@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #***************************[clean filename]**********************************
-# 2023 02 07
 
+# 2023 02 07
 function _file_name_clean_input() {
 
     # no help!
@@ -14,6 +14,7 @@ function _file_name_clean_input() {
     sed 's/[^-a-zA-Z0-9_.,;*+=#~()]/#/g'
 }
 
+# 2023 02 07
 function _file_name_clean_string() {
 
     # no help!
@@ -186,7 +187,7 @@ function file_name_clean_recursive() {
     done
 }
 
-# 2023 02 06
+# 2023 02 07
 function file_name_clean_recursive_check() {
 
     # print help
@@ -222,6 +223,7 @@ function file_name_clean_recursive_check() {
         echo "all files and dirs comply :-)"
     else
         echo "some file name(s) can be cleaned"
+        return -2
     fi
 }
 

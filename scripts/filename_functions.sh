@@ -2,7 +2,7 @@
 
 #***************************[clean filename]**********************************
 
-# 2023 02 07
+# 2023 11 10
 function _file_name_clean_input() {
 
     # no help!
@@ -11,7 +11,7 @@ function _file_name_clean_input() {
     sed 's/[ \t]\+/_/g;' | \
     sed 's/ä/ae/g; s/ü/ue/g; s/ö/oe/g; s/Ä/Ae/g; s/Ü/Ue/g; s/Ö/Oe/g' | \
     sed 's/ß/ss/g' | \
-    sed 's/[^-a-zA-Z0-9_.,;*+=#~()]/#/g'
+    sed 's/[^-a-zA-Z0-9_.,;&+=#~()]/#/g'
 }
 
 # 2023 02 07

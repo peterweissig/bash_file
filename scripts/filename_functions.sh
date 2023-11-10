@@ -23,7 +23,7 @@ function _file_name_clean_string() {
     echo -n "$@" | sed -z 's/\n\+/ /g' | _file_name_clean_input
 }
 
-# 2020 01 09
+# 2023 11 10
 function file_name_clean() {
 
     # print help
@@ -60,15 +60,32 @@ function file_name_clean() {
 
     # read all filenames
     if [ "$1" == "" ]; then
-        readarray -t filelist <<< "$(ls --quote-name)"
+        readarray -t filelist <<< "$(ls --quote-name --file-type)"
     else
-        readarray -t filelist <<< "$(ls --quote-name "$1")"
+        readarray -t filelist <<< "$(ls --quote-name --file-type "$1")"
     fi
 
     # iterate over all files
     for i in ${!filelist[@]}; do
-        # remove outer quotes
-        temp="$(echo "${filelist[$i]:1:-1}")"
+        # skip empty elements
+        temp="${filelist[$i]}"
+        if [ "$temp" == "" ]; then
+            continue;
+        fi
+
+        # skip folders
+        last_symbol="${temp: -1}"
+        if [ "$last_symbol" == "/" ]; then
+            filelist[$i]=""
+            continue;
+        fi
+
+        # remove file-type classifying symbol
+        if [ "$last_symbol" != '"' ]; then
+            temp="${temp::-1}"
+        fi
+        # remove outer symbols (quotes)
+        temp="${temp:1:-1}"
 
         # expand special characters and simplify \" to "
         filelist[$i]="$(printf "${temp}")"

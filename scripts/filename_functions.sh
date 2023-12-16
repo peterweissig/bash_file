@@ -23,7 +23,7 @@ function _file_name_clean_string() {
     echo -n "$@" | sed -z 's/\n\+/ /g' | _file_name_clean_input
 }
 
-# 2023 11 10
+# 2023 12 16
 function file_name_clean() {
 
     # print help
@@ -37,12 +37,12 @@ function file_name_clean() {
         echo "    [#1:]search-expression (e.g. \"*.jpg\")"
         echo "         Leave option empty to rename all files and dirs."
         echo "         For wildcard-expressions please use double-quotes."
-        echo "The files will be renamed to remove ä, ü, ö, ß and spaces."
-        echo "  (e.g. from \"file ä ß Ö.ext\" to file_ae_ss_Oe.ext)"
-        echo "The file extension will be set to small letters."
+        echo "Files and folders will be renamed to remove ä, ü, ö, ß and"
+        echo "spaces. (e.g. from \"file ä ß Ö.ext\" to file_ae_ss_Oe.ext)"
+        echo "For files the extension will be set to small letters only."
         echo "  (e.g. from \"file.TXT\" to file.txt)"
         echo "Any character except for alphanumerics (A-Z & 0-9) and some"
-        echo "  special characters (_.,;*+-=#~()) will be replaced by an #."
+        echo "  special characters (_.,;&+=#~()) will be replaced by an #."
 
         return
     fi
@@ -73,14 +73,8 @@ function file_name_clean() {
             continue;
         fi
 
-        # skip folders
+        # remove file-type classifying symbol (but store it)
         last_symbol="${temp: -1}"
-        if [ "$last_symbol" == "/" ]; then
-            filelist[$i]=""
-            continue;
-        fi
-
-        # remove file-type classifying symbol
         if [ "$last_symbol" != '"' ]; then
             temp="${temp::-1}"
         fi
@@ -93,13 +87,16 @@ function file_name_clean() {
         # replace bad letters
         corrected[$i]="$(_file_name_clean_string "${filelist[$i]}")";
 
-        # correct extension
-        ext="${corrected[$i]/*./.}"
-        if [ "$ext" != "${corrected[$i]}" ]; then
-            base="${corrected[$i]%.*}"
+        # skip folders
+        if [ "$last_symbol" != "/" ]; then
+            # correct extension
+            ext="${corrected[$i]/*./.}"
+            if [ "$ext" != "${corrected[$i]}" ]; then
+                base="${corrected[$i]%.*}"
 
-            ext="${ext,,}";
-            corrected[$i]="${base}${ext}"
+                ext="${ext,,}";
+                corrected[$i]="${base}${ext}"
+            fi
         fi
 
         # check if filename would change

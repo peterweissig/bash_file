@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[all]*********************************************
-# 2023 02 07
+# 2025 03 17
 
 function file_help_all() {
 
@@ -43,6 +43,10 @@ function file_help_all() {
     echo "  _file_name_clean_input   #no help"
     echo "  _file_name_clean_string  #no help"
     echo ""
+    echo "linebreaks"
+    echo "  file_linebreak_dos       #no help"
+    echo "  file_linebreak_unix      #no help"
+    echo ""
     echo "backup"
     echo -n "  "; file_backup_simple -h
     echo -n "  "; file_backup_inplace -h
@@ -59,7 +63,7 @@ function file_help_all() {
 }
 
 #***************************[help]********************************************
-# 2021 01 07
+# 2025 03 17
 
 function file_help() {
 
@@ -74,6 +78,10 @@ function file_help() {
     echo -n "  "; file_name_clean -h
     echo -n "  "; file_name_expand -h
     echo -n "  "; file_name_erode -h
+    echo ""
+    echo "linebreaks"
+    echo "  file_linebreak_dos       #no help"
+    echo "  file_linebreak_unix      #no help"
     echo ""
     echo "backup"
     echo -n "  "; file_backup_simple -h

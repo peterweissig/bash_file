@@ -447,3 +447,108 @@ function file_name_erode() {
         fi
     done
 }
+
+#***************************[regex filename]**********************************
+# 2026 03 22
+
+function file_rename_regex() {
+
+    # print help
+    if [ "$1" == "-h" ]; then
+        echo "$FUNCNAME <search> <replace> [<filter>]"
+
+        return
+    fi
+    if [ "$1" == "--help" ]; then
+        echo "$FUNCNAME needs 2-3 parameters"
+        echo "     #1: search expression (e.g. \"^([0-9]+_[0-9]{6})[0-9]{3}\")"
+        echo "     #2: replacement expression (e.g. \"\1\")"
+        echo "    [#3:]search-expression (e.g. \"*.jpg\")"
+        echo "         Leave option empty to rename all files and dirs."
+        echo "         For wildcard-expressions please use double-quotes."
+        echo "Sed is used for the replacement."
+        echo "The optional file extension is not part of the search and replace."
+        echo "  (e.g. from 20260322_123456789_image.jpg to 20260322_123456_image.jpg)."
+        return
+    fi
+
+    # check parameter
+    if [ $# -lt 2 ] || [ $# -gt 3 ]; then
+        echo "$FUNCNAME: Parameter Error."
+        $FUNCNAME --help
+        return -1
+    fi
+
+    # init variables
+    changed=0
+    updated=()
+    param_search="$1"
+    param_replace="$2"
+
+    # read all filenames
+    if [ $# -lt 3 ]; then
+        readarray -t filelist <<< "$(ls)"
+    else
+        readarray -t filelist <<< "$(ls $3)"
+    fi
+
+    # iterate over all files
+    for i in ${!filelist[@]}; do
+        # split filename
+        path="$(dirname "${filelist[$i]}")"
+        if [ "$path" == "." ]; then
+            path="";
+        else
+            path="${path}/";
+        fi
+
+        baseext="$(basename "${filelist[$i]}")"
+        base="${baseext%.*}"
+        ext="${baseext/*./.}"
+        if [ "$ext" == "$baseext" ]; then
+            ext="";
+        fi
+
+        # create new name
+        updated[$i]="$(echo -n "${base}" | \
+          sed -E -e "s/${param_search}/${param_replace}/")";
+        updated[$i]="${path}${updated[$i]}${ext}"
+
+        # rename file
+        if [ "${filelist[$i]}" != "${updated[$i]}" ]; then
+            echo "  \"${filelist[$i]}\" ==> \"${updated[$i]}\""
+            changed=1
+        fi
+    done
+
+    if [ $changed -eq 0 ]; then
+        # output if nothing was changed
+        echo "No files found"
+        return
+    fi
+
+    # ask user if continuing
+    echo -n "Do you wish to continue ? (No/yes)"
+    read answer
+    if [ "$answer" != "y" ] && [ "$answer" != "Y" ] && \
+      [ "$answer" != "yes" ]; then
+
+        echo "$FUNCNAME: Aborted."
+        return
+    fi
+
+    # iterate over all files
+    for i in ${!filelist[@]}; do
+        # check for errors
+        if [ $? -ne 0 ]; then
+            echo "$FUNCNAME: Stopping because of an error."
+            return -1;
+        fi
+
+        # check if filename would change
+        if [ "${filelist[$i]}" != "${updated[$i]}" ]; then
+            echo "renaming \"${updated[$i]}\""
+            mv "${filelist[$i]}" "${updated[$i]}"
+        fi
+    done
+}

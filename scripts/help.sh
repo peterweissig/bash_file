@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #***************************[all]*********************************************
-# 2025 03 17
+# 2026 03 22
 
 function file_help_all() {
 
@@ -40,6 +40,7 @@ function file_help_all() {
     echo -n "  "; file_name_clean_recursive_check -h
     echo -n "  "; file_name_expand -h
     echo -n "  "; file_name_erode -h
+    echo -n "  "; file_rename_regex -h
     echo "  _file_name_clean_input   #no help"
     echo "  _file_name_clean_string  #no help"
     echo ""

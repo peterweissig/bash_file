@@ -244,7 +244,7 @@ function file_name_clean_recursive_check() {
 
 
 #***************************[expand filename]*********************************
-# 2018 12 01
+# 2026 03 22
 
 function file_name_expand() {
 
@@ -262,7 +262,7 @@ function file_name_expand() {
         echo "         Leave option empty to rename all files and dirs."
         echo "         For wildcard-expressions please use double-quotes."
         echo "The output files and dirs will be named"
-        echo "  \"<path><prefix><filename><suffix><extension>\"."
+        echo "  \"<prefix><filename><suffix><extension>\"."
         echo "  (e.g. from image.jpg to file_image_new.jpg)."
 
         return
@@ -276,75 +276,20 @@ function file_name_expand() {
     fi
 
     # init variables
-    changed=0
-    updated=()
+    param_prefix="$1"
+    param_suffix="$2"
+    param_filter="$3"
 
     # read all filenames
     if [ $# -lt 3 ]; then
-        readarray -t filelist <<< "$(ls)"
+        file_rename_regex "^(.*)$" "${param_prefix}\1${param_suffix}"
     else
-        readarray -t filelist <<< "$(ls "$3")"
+        file_rename_regex "^(.*)$" "${param_prefix}\1${param_suffix}" "$param_filter"
     fi
-
-    # iterate over all files
-    for i in ${!filelist[@]}; do
-        # split filename
-        path="$(dirname "${filelist[$i]}")"
-        if [ "$path" == "." ]; then
-            path="";
-        else
-            path="${path}/";
-        fi
-
-        baseext="$(basename "${filelist[$i]}")"
-        base="${baseext%.*}"
-        ext="${baseext/*./.}"
-        if [ "$ext" == "$baseext" ]; then
-            ext="";
-        fi
-
-        # create new name
-        updated[$i]="${path}${1}${base}${2}${ext}"
-
-        # rename file
-        echo "  \"${filelist[$i]}\" ==> \"${updated[$i]}\""
-        changed=1
-    done
-
-    if [ $changed -eq 0 ]; then
-        # output if nothing was changed
-        echo "No files found :-("
-        return
-    fi
-
-    # ask user if continuing
-    echo -n "Do you wish to continue ? (No/yes)"
-    read answer
-    if [ "$answer" != "y" ] && [ "$answer" != "Y" ] && \
-      [ "$answer" != "yes" ]; then
-
-        echo "$FUNCNAME: Aborted."
-        return
-    fi
-
-    # iterate over all files
-    for i in ${!filelist[@]}; do
-        # check for errors
-        if [ $? -ne 0 ]; then
-            echo "$FUNCNAME: Stopping because of an error."
-            return -1;
-        fi
-
-        # check if filename would change
-        if [ "${filelist[$i]}" != "${updated[$i]}" ]; then
-            echo "renaming \"${updated[$i]}\""
-            mv "${filelist[$i]}" "${updated[$i]}"
-        fi
-    done
 }
 
 #***************************[erode filename]**********************************
-# 2022 06 12
+# 2026 03 22
 
 function file_name_erode() {
 
@@ -362,7 +307,7 @@ function file_name_erode() {
         echo "         Leave option empty to rename all files and dirs."
         echo "         For wildcard-expressions please use double-quotes."
         echo "The output files and dirs will be named"
-        echo "  \"<path><filename without prefix or suffix><extension>\"."
+        echo "  \"<filename without prefix or suffix><extension>\"."
         echo "  (e.g. from file_image_new.jpg to image.jpg)."
 
         return
@@ -376,76 +321,16 @@ function file_name_erode() {
     fi
 
     # init variables
-    changed=0
-    updated=()
+    param_prefix="$1"
+    param_suffix="$2"
+    param_filter="$3"
 
     # read all filenames
     if [ $# -lt 3 ]; then
-        readarray -t filelist <<< "$(ls)"
+        file_rename_regex "^${param_prefix}(.*)${param_suffix}$" "\1"
     else
-        readarray -t filelist <<< "$(ls $3)"
+        file_rename_regex "^${param_prefix}(.*)${param_suffix}$" "\1" "$param_filter"
     fi
-
-    # iterate over all files
-    for i in ${!filelist[@]}; do
-        # split filename
-        path="$(dirname "${filelist[$i]}")"
-        if [ "$path" == "." ]; then
-            path="";
-        else
-            path="${path}/";
-        fi
-
-        baseext="$(basename "${filelist[$i]}")"
-        base="${baseext%.*}"
-        ext="${baseext/*./.}"
-        if [ "$ext" == "$baseext" ]; then
-            ext="";
-        fi
-
-        # create new name
-        updated[$i]="$(echo -n "${base}" | \
-          sed "s/^${1}\\(.*\\)${2}\$/\\1/")";
-          # sed "s/^<prefix>\(.*\)<suffix>$/\1/"
-        updated[$i]="${path}${updated[$i]}${ext}"
-
-        # rename file
-        if [ "${filelist[$i]}" != "${updated[$i]}" ]; then
-            echo "  \"${filelist[$i]}\" ==> \"${updated[$i]}\""
-            changed=1
-        fi
-    done
-
-    if [ $changed -eq 0 ]; then
-        # output if nothing was changed
-        echo "No files found :-("
-        return
-    fi
-
-    # ask user if continuing
-    echo -n "Do you wish to continue ? (No/yes)"
-    read answer
-    if [ "$answer" != "y" ] && [ "$answer" != "Y" ] && \
-      [ "$answer" != "yes" ]; then
-
-        echo "$FUNCNAME: Aborted."
-        return
-    fi
-
-    # iterate over all files
-    for i in ${!filelist[@]}; do
-        # check for errors
-        if [ $? -ne 0 ]; then
-            echo "$FUNCNAME: Stopping because of an error."
-            return -1;
-        fi
-
-        # check if filename would change
-        if [ "${filelist[$i]}" != "${updated[$i]}" ]; then
-            echo "renaming \"${updated[$i]}\""
-            mv "${filelist[$i]}" "${updated[$i]}"
-        fi
-    done
 }
 
 #***************************[regex filename]**********************************
